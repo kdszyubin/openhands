@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>斗地主 - 经典扑克游戏</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="game-container">
+        <!-- 背景装饰 -->
+        <div class="bg-decoration"></div>
+        
+        <!-- 游戏标题 -->
+        <div id="game-title">
+            <h1>🃏 斗地主</h1>
+        </div>
+
+        <!-- 游戏桌面 -->
+        <div id="game-table">
+            <!-- 左边AI玩家 -->
+            <div id="player-left" class="player-area ai-player">
+                <div class="player-info">
+                    <div class="avatar">🤖</div>
+                    <div class="player-name">电脑A</div>
+                    <div class="player-role"></div>
+                    <div class="card-count">17张</div>
+                </div>
+                <div class="player-cards"></div>
+                <div class="played-cards"></div>
+                <div class="player-action"></div>
+            </div>
+
+            <!-- 右边AI玩家 -->
+            <div id="player-right" class="player-area ai-player">
+                <div class="player-info">
+                    <div class="avatar">🤖</div>
+                    <div class="player-name">电脑B</div>
+                    <div class="player-role"></div>
+                    <div class="card-count">17张</div>
+                </div>
+                <div class="player-cards"></div>
+                <div class="played-cards"></div>
+                <div class="player-action"></div>
+            </div>
+
+            <!-- 中央区域 -->
+            <div id="center-area">
+                <!-- 底牌区域 -->
+                <div id="landlord-cards">
+                    <div class="card-back"></div>
+                    <div class="card-back"></div>
+                    <div class="card-back"></div>
+                </div>
+                
+                <!-- 游戏信息 -->
+                <div id="game-info">
+                    <div id="current-turn">等待开始...</div>
+                    <div id="game-multiplier">倍数: 1</div>
+                </div>
+
+                <!-- 出牌展示区 -->
+                <div id="play-area">
+                    <div id="left-played"></div>
+                    <div id="center-played"></div>
+                    <div id="right-played"></div>
+                </div>
+            </div>
+
+            <!-- 玩家区域 -->
+            <div id="player-bottom" class="player-area human-player">
+                <div class="player-info">
+                    <div class="avatar">👤</div>
+                    <div class="player-name">玩家</div>
+                    <div class="player-role"></div>
+                </div>
+                <div class="player-action"></div>
+                <div id="my-cards" class="player-cards"></div>
+            </div>
+        </div>
+
+        <!-- 控制按钮区 -->
+        <div id="control-panel">
+            <div id="bid-buttons" class="button-group hidden">
+                <button id="btn-no-bid" class="game-btn">不叫</button>
+                <button id="btn-bid-1" class="game-btn">1分</button>
+                <button id="btn-bid-2" class="game-btn">2分</button>
+                <button id="btn-bid-3" class="game-btn">3分</button>
+            </div>
+            <div id="play-buttons" class="button-group hidden">
+                <button id="btn-hint" class="game-btn secondary">提示</button>
+                <button id="btn-pass" class="game-btn secondary">不出</button>
+                <button id="btn-play" class="game-btn primary">出牌</button>
+            </div>
+            <div id="start-buttons" class="button-group">
+                <button id="btn-start" class="game-btn primary large">开始游戏</button>
+            </div>
+        </div>
+
+        <!-- 游戏结果弹窗 -->
+        <div id="result-modal" class="modal hidden">
+            <div class="modal-content">
+                <div id="result-icon"></div>
+                <h2 id="result-title"></h2>
+                <div id="result-info"></div>
+                <button id="btn-restart" class="game-btn primary">再来一局</button>
+            </div>
+        </div>
+
+        <!-- 音效控制 -->
+        <div id="sound-control">
+            <button id="btn-bgm" class="icon-btn" title="背景音乐">🎵</button>
+            <button id="btn-sfx" class="icon-btn active" title="音效">🔊</button>
+        </div>
+    </div>
+
+    <!-- 音效元素 -->
+    <audio id="bgm" loop></audio>
+    <audio id="sfx-deal"></audio>
+    <audio id="sfx-play"></audio>
+    <audio id="sfx-bomb"></audio>
+    <audio id="sfx-win"></audio>
+    <audio id="sfx-lose"></audio>
+    <audio id="sfx-bid"></audio>
+    <audio id="sfx-pass"></audio>
+
+    <!-- 加载模块化JS -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
