@@ -46,6 +46,60 @@ export class GameController {
         
         // 回调函数
         this.onStateChange = null;
+
+        // WebSocket for multiplayer
+        this.socket = null;
+        this.playerId = null;
+        this.isMultiplayer = false;
+    }
+
+    /**
+     * Connect to multiplayer server
+     */
+    connectMultiplayer() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        this.socket = new WebSocket(`${protocol}//${window.location.host}`);
+        
+        this.socket.onopen = () => {
+            console.log('Connected to multiplayer server');
+            this.isMultiplayer = true;
+            animationManager.showMessage(this.elements.centerArea, '已连接服务器，等待其他玩家...', 2000);
+        };
+        
+        this.socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            this.handleNetworkMessage(data);
+        };
+        
+        this.socket.onclose = () => {
+            console.log('Disconnected from multiplayer server');
+            this.isMultiplayer = false;
+        };
+        
+        this.socket.onerror = (err) => {
+            console.error('WebSocket error:', err);
+            // Fallback to single player mode silently or notify user
+        };
+    }
+
+    /**
+     * Handle messages from server
+     */
+    handleNetworkMessage(data) {
+        console.log('Received:', data);
+        switch(data.type) {
+            case 'init':
+                this.playerId = data.playerId;
+                console.log('My Player ID:', this.playerId);
+                break;
+            case 'player_join':
+                animationManager.showMessage(this.elements.centerArea, `${data.player.name} 加入游戏`, 1000);
+                break;
+            case 'game_start':
+                this.startGame();
+                break;
+            // Handle other game events
+        }
     }
 
     /**
@@ -70,6 +124,9 @@ export class GameController {
 
         // 更新初始积分显示
         this.updateScoreDisplay();
+
+        // 尝试连接服务器
+        this.connectMultiplayer();
 
         console.log('Game initialized');
     }
