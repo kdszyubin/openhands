@@ -4,6 +4,19 @@
 
 ![游戏预览](https://img.shields.io/badge/游戏-斗地主-green) ![技术栈](https://img.shields.io/badge/技术栈-HTML%2FCSS%2FJS-blue) ![状态](https://img.shields.io/badge/状态-可运行-success)
 
+## 📖 目录
+
+- [✨ 功能特性](#-功能特性)
+- [📁 项目结构](#-项目结构)
+- [🚀 快速启动](#-快速启动)
+- [🧪 测试](#-测试)
+- [🎮 游戏规则](#-游戏规则)
+- [🛠 技术实现](#-技术实现)
+- [🎨 UI设计](#-ui设计)
+- [🔊 音效说明](#-音效说明)
+- [📝 待优化](#-待优化)
+- [🤝 贡献](#-贡献)
+
 ## ✨ 功能特性
 
 ### 基础功能
@@ -49,7 +62,7 @@
 
 ## 📁 项目结构
 
-```
+```text
 doudizhu/
 ├── index.html          # 主HTML文件
 ├── README.md           # 项目说明
@@ -70,7 +83,7 @@ doudizhu/
 ## 🚀 快速启动
 
 ### 方法一：直接打开
-由于使用了 ES6 模块，需要通过 HTTP 服务器运行：
+由于使用了 ES6 模块，需要通过 HTTP 服务器运行（确保已安装 Python 3 或 Node.js）：
 
 ```bash
 # 进入项目目录
@@ -87,6 +100,18 @@ npx http-server -p 12000
 
 ### 方法二：使用 Live Server
 如果使用 VS Code，可以安装 Live Server 插件，右键 `index.html` 选择 "Open with Live Server"。
+
+### 测试
+
+项目包含基于 Jest 的单元测试。确保已安装 Node.js 和依赖：
+
+```bash
+# 安装依赖
+npm install
+
+# 运行测试
+npm test
+```
 
 ## 🎮 游戏规则
 
@@ -124,13 +149,13 @@ npx http-server -p 12000
 
 | 模块 | 职责 |
 |------|------|
-| `card.js` | 定义扑克牌数据结构，包括花色、牌面值、权重等 |
-| `deck.js` | 牌组管理，包括洗牌、发牌、手牌管理 |
-| `rules.js` | 牌型分析和规则判断，支持所有斗地主牌型 |
-| `player.js` | 玩家基类和AI玩家实现 |
-| `game.js` | 游戏流程控制，状态管理，UI交互 |
-| `animation.js` | 动画效果管理 |
-| `sound.js` | 音效和语音管理 |
+| [`card.js`](js/card.js) | 定义扑克牌数据结构，包括花色、牌面值、权重等 |
+| [`deck.js`](js/deck.js) | 牌组管理，包括洗牌、发牌、手牌管理 |
+| [`rules.js`](js/rules.js) | 牌型分析和规则判断，支持所有斗地主牌型 |
+| [`player.js`](js/player.js) | 玩家基类和AI玩家实现 |
+| [`game.js`](js/game.js) | 游戏流程控制，状态管理，UI交互 |
+| [`animation.js`](js/animation.js) | 动画效果管理 |
+| [`sound.js`](js/sound.js) | 音效和语音管理 |
 
 ### AI策略
 AI采用简单的策略模式：
