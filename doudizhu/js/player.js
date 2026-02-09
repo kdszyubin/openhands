@@ -33,6 +33,15 @@ export class Player {
         this.lastBid = 0;        // 最后叫的分数
         this.hasPlayed = false;  // 本回合是否出过牌
         this.passCount = 0;      // 连续不出次数
+        this.score = 1000;       // 初始积分
+    }
+
+    /**
+     * 更新积分
+     */
+    updateScore(delta) {
+        this.score += delta;
+        return this.score;
     }
 
     /**
@@ -85,13 +94,17 @@ export class Player {
 
     /**
      * 重置玩家状态
+     * @param {boolean} resetScore 是否重置积分
      */
-    reset() {
+    reset(resetScore = true) {
         this.role = PLAYER_ROLE.UNKNOWN;
         this.hand = new HandManager();
         this.lastBid = 0;
         this.hasPlayed = false;
         this.passCount = 0;
+        if (resetScore) {
+            this.score = 1000;
+        }
         return this;
     }
 

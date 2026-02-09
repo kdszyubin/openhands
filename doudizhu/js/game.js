@@ -39,6 +39,7 @@ export class GameController {
         this.isSpring = true;           // 春天判定
         this.landlordPlayCount = 0;     // 地主出牌次数
         this.farmerPlayCount = 0;       // 农民出牌次数
+        this.baseScore = 10;            // 基础分
         
         // UI元素引用
         this.elements = {};
@@ -66,6 +67,9 @@ export class GameController {
         
         // 初始化音效
         soundManager.init();
+
+        // 更新初始积分显示
+        this.updateScoreDisplay();
 
         console.log('Game initialized');
     }
@@ -179,7 +183,8 @@ export class GameController {
      */
     resetGame() {
         this.deck.reset();
-        this.players.forEach(p => p.reset());
+        // 保留玩家积分，重置其他状态
+        this.players.forEach(p => p.reset(false));
         this.landlordCards = [];
         this.currentPlayerIndex = Math.floor(Math.random() * 3); // 随机起始玩家
         this.phase = GAME_PHASE.IDLE;
@@ -197,6 +202,7 @@ export class GameController {
         // 清理UI
         this.clearAllPlayedCards();
         this.updateMultiplierDisplay();
+        this.updateScoreDisplay(); // 确保积分显示正确
         
         // 移除地主标识
         document.querySelectorAll('.is-landlord').forEach(el => {
@@ -740,6 +746,47 @@ export class GameController {
     }
 
     /**
+     * 更新积分显示
+     */
+    updateScoreDisplay() {
+        this.players.forEach((player, index) => {
+            const element = this.getPlayerElement(index);
+            const scoreEl = element.querySelector('.player-score');
+            if (scoreEl) {
+                scoreEl.textContent = `💰 ${player.score}`;
+            }
+        });
+    }
+
+    /**
+     * 结算积分
+     */
+    calculateScores(winner) {
+        const isLandlordWin = winner.isLandlord;
+        const totalMultiplier = this.multiplier;
+        const baseScore = this.baseScore;
+        
+        // 计算地主输赢分
+        let landlordScore = baseScore * totalMultiplier;
+        
+        // 更新分数
+        this.players.forEach(player => {
+            if (player.isLandlord) {
+                // 地主
+                const delta = isLandlordWin ? (landlordScore * 2) : -(landlordScore * 2);
+                player.updateScore(delta);
+            } else {
+                // 农民
+                const delta = isLandlordWin ? -landlordScore : landlordScore;
+                player.updateScore(delta);
+            }
+        });
+        
+        this.updateScoreDisplay();
+        return isLandlordWin ? (landlordScore * 2) : landlordScore; // 返回赢家赢的分数
+    }
+
+    /**
      * 游戏结束
      */
     async endGame(winner) {
@@ -766,22 +813,29 @@ export class GameController {
         animationManager.victoryAnimation(this.elements.gameTable, isPlayerWin);
         soundManager.speakResult(isPlayerWin);
 
+        // 结算积分
+        const scoreChange = this.calculateScores(winner);
+
         // 显示结果弹窗
         await this.wait(500);
-        this.showResultModal(isPlayerWin, isLandlordWin, springText);
+        this.showResultModal(isPlayerWin, isLandlordWin, springText, scoreChange);
     }
 
     /**
      * 显示结果弹窗
      */
-    showResultModal(isPlayerWin, isLandlordWin, springText) {
+    showResultModal(isPlayerWin, isLandlordWin, springText, scoreChange) {
         this.elements.resultIcon.textContent = isPlayerWin ? '🎉' : '😢';
         this.elements.resultTitle.textContent = isPlayerWin ? '恭喜获胜！' : '很遗憾，失败了';
         
         const roleText = isLandlordWin ? '地主获胜' : '农民获胜';
+        const scoreText = isPlayerWin ? `+${scoreChange}` : `-${scoreChange}`;
+        const scoreClass = isPlayerWin ? 'win-score' : 'lose-score';
+        
         this.elements.resultInfo.innerHTML = `
             <p>${roleText} ${springText}</p>
             <p>最终倍数: <strong>${this.multiplier}</strong></p>
+            <p class="score-result ${scoreClass}">积分变动: ${scoreText}</p>
         `;
         
         this.elements.resultModal.classList.remove('hidden');

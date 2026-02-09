@@ -45,7 +45,12 @@ export class SoundManager {
         };
 
         this.speechEnabled = true;
-        this.speechSynth = window.speechSynthesis;
+        // Check for window existence before accessing speech synthesis (for testing/Node environment)
+        if (typeof window !== 'undefined') {
+            this.speechSynth = window.speechSynthesis;
+        } else {
+            this.speechSynth = null;
+        }
     }
 
     /**
