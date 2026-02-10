@@ -7,6 +7,7 @@ import { sortCards } from './card.js';
 import { Deck } from './deck.js';
 import { RulesAnalyzer, CARD_TYPES, CARD_TYPE_NAMES } from './rules.js';
 import { HumanPlayer, AIPlayer, PLAYER_ROLE } from './player.js';
+import { SmartAIPlayer } from './smart-ai-player.js';
 import { animationManager } from './animation.js';
 import { soundManager } from './sound.js';
 
@@ -108,9 +109,9 @@ export class GameController {
     init() {
         // 创建玩家
         this.players = [
-            new AIPlayer(0, '电脑A', 'normal'),
+            new SmartAIPlayer(0, '电脑A', 'hard'),
             new HumanPlayer(1, '玩家'),
-            new AIPlayer(2, '电脑B', 'normal')
+            new SmartAIPlayer(2, '电脑B', 'hard')
         ];
 
         // 获取UI元素引用
@@ -410,6 +411,8 @@ export class GameController {
         } else {
             // AI玩家
             await player.think();
+            // 设置玩家访问其他玩家信息的途径
+            player.players = this.players;
             const bid = player.decideBid(this.currentBid, this.landlordCards);
             await this.processBid(bid);
         }
@@ -588,6 +591,8 @@ export class GameController {
         } else {
             // AI玩家
             await player.think();
+            // 设置玩家访问其他玩家信息的途径
+            player.players = this.players;
             const mustPlay = (this.lastPlayerId === null || this.lastPlayerId === player.id);
             const cards = player.decidePlay(this.lastPlay, mustPlay);
             
@@ -733,6 +738,16 @@ export class GameController {
             soundManager.playCard();
         }
 
+        // 记录AI出牌到记忆中（如果是AI玩家）
+        if (player.type === 'ai' && typeof player.rememberOpponentPlay === 'function') {
+            // 告诉其他AI玩家这张牌是谁出的
+            for (const otherPlayer of this.players) {
+                if (otherPlayer.id !== player.id && typeof otherPlayer.rememberOpponentPlay === 'function') {
+                    otherPlayer.rememberOpponentPlay(player.id, cards);
+                }
+            }
+        }
+
         // 显示出的牌
         await this.showPlayedCards(this.currentPlayerIndex, cards, analysis);
 
@@ -761,6 +776,17 @@ export class GameController {
         const player = this.players[this.currentPlayerIndex];
         
         this.passCount++;
+
+        // 记录AI不出牌到记忆中
+        if (player.type === 'ai' && typeof player.rememberOpponentPlay === 'function') {
+            // 通知其他AI玩家该玩家选择了pass
+            for (const otherPlayer of this.players) {
+                if (otherPlayer.id !== player.id && typeof otherPlayer.rememberOpponentPlay === 'function') {
+                    // 使用特殊标识表示pass
+                    otherPlayer.rememberOpponentPlay(player.id, []);
+                }
+            }
+        }
 
         // 显示不出
         const actionContainer = this.getPlayerActionContainer(this.currentPlayerIndex);
