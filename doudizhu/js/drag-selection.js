@@ -91,7 +91,7 @@ export class DragSelectionManager {
         const scrollTop = container.scrollTop || 0;
         
         // 设置选框位置（相对于容器）
-        const left = e.clientX - rect.left;
+        const left = e.clientX - rect.left;  // 不在此处乘以devicePixelRatio，因为我们要根据屏幕实际坐标设置样式
         const top = e.clientY - rect.top + scrollTop;
         
         this.selectionBox.style.left = left + 'px';
@@ -108,7 +108,7 @@ export class DragSelectionManager {
         const rect = container.getBoundingClientRect();
         const scrollTop = container.scrollTop || 0;
 
-        // 计算相对于容器的位置
+        // 计算相对于容器的位置（不需要设备像素比校正）
         const startX = this.startX - rect.left;
         const startY = this.startY - rect.top + scrollTop;
         const currentX = this.currentX - rect.left;
@@ -140,8 +140,8 @@ export class DragSelectionManager {
 
             // 计算卡片相对于容器的位置
             const cardTop = rect.top - containerRect.top + scrollTop;
-            const cardLeft = rect.left;
-            const cardRight = rect.right;
+            const cardLeft = rect.left - containerRect.left;
+            const cardRight = rect.right - containerRect.left;
             const cardBottom = rect.bottom - containerRect.top + scrollTop;
 
             // 获取选框的边界（相对于容器）
@@ -150,8 +150,8 @@ export class DragSelectionManager {
             const selectionRight = selectionLeft + parseInt(this.selectionBox.style.width);
             const selectionBottom = selectionTop + parseInt(this.selectionBox.style.height);
 
-            // 检查卡片是否与选框相交（添加微小容差以处理边缘接触）
-            const tolerance = 1; // 1像素容差
+            // 检查卡片是否与选框相交（添加轻微容差以处理边缘接触）
+            const tolerance = 2; // 2像素容差，提高精确度
             const intersects = 
                 cardLeft < selectionRight + tolerance &&
                 cardRight > selectionLeft - tolerance &&
