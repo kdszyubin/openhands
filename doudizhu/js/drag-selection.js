@@ -133,16 +133,24 @@ export class DragSelectionManager {
         const container = document.getElementById('my-cards');
         const cards = Array.from(container.querySelectorAll('.card[data-card-id]'));
 
+        // 获取缩放因子（处理用户缩放页面的情况）
+        const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        const scale = window.innerWidth && document.documentElement.clientWidth ? 
+                     viewportWidth / document.documentElement.clientWidth : 1;
+        // 限制缩放范围合理值
+        const effectiveScale = Math.min(Math.max(scale, 0.5), 2); 
+
         cards.forEach(cardEl => {
             const rect = cardEl.getBoundingClientRect();
             const containerRect = container.getBoundingClientRect();
             const scrollTop = container.scrollTop || 0;
 
             // 计算卡片相对于容器的位置
-            const cardTop = rect.top - containerRect.top + scrollTop;
+            // 注意：容器本身可能也滚动，所以需要调整计算
+            const cardTop = rect.top - containerRect.top + scrollTop/effectiveScale;
             const cardLeft = rect.left - containerRect.left;
             const cardRight = rect.right - containerRect.left;
-            const cardBottom = rect.bottom - containerRect.top + scrollTop;
+            const cardBottom = rect.bottom - containerRect.top + scrollTop/effectiveScale;
 
             // 获取选框的边界（相对于容器）
             const selectionLeft = this.selectionBox.offsetLeft;
@@ -150,13 +158,16 @@ export class DragSelectionManager {
             const selectionRight = selectionLeft + parseInt(this.selectionBox.style.width);
             const selectionBottom = selectionTop + parseInt(this.selectionBox.style.height);
 
-            // 检查卡片是否与选框相交（添加轻微容差以处理边缘接触）
-            const tolerance = 2; // 2像素容差，提高精确度
+            // 根据缩放级别调整容差
+            const baseTolerance = 2;
+            const adaptiveTolerance = Math.max(1, Math.round(baseTolerance / effectiveScale));
+            
+            // 检查卡片是否与选框相交
             const intersects = 
-                cardLeft < selectionRight + tolerance &&
-                cardRight > selectionLeft - tolerance &&
-                cardTop < selectionBottom + tolerance &&
-                cardBottom > selectionTop - tolerance;
+                cardLeft < selectionRight + adaptiveTolerance &&
+                cardRight > selectionLeft - adaptiveTolerance &&
+                cardTop < selectionBottom + adaptiveTolerance &&
+                cardBottom > selectionTop - adaptiveTolerance;
 
             if (intersects) {
                 cardEl.classList.add('drag-over');
