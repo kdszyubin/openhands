@@ -89,13 +89,18 @@ export class DragSelectionManager {
         // 获取容器的位置和滚动偏移
         const rect = container.getBoundingClientRect();
         const scrollTop = container.scrollTop || 0;
+        const scrollLeft = container.scrollLeft || 0;
         
-        // 设置选框位置（相对于容器）
-        const left = e.clientX - rect.left;  // 不在此处乘以devicePixelRatio，因为我们要根据屏幕实际坐标设置样式
-        const top = e.clientY - rect.top + scrollTop;
+        // 设置选框位置（相对于容器的内容坐标）
+        // 考虑到容器可能有滚动，我们需要将滚动距离加回去
+        const startX = e.clientX - rect.left + scrollLeft;
+        const startY = e.clientY - rect.top + scrollTop;
         
-        this.selectionBox.style.left = left + 'px';
-        this.selectionBox.style.top = top + 'px';
+        this.startX = startX;
+        this.startY = startY;
+        
+        this.selectionBox.style.left = startX + 'px';
+        this.selectionBox.style.top = startY + 'px';
         this.selectionBox.style.width = '0px';
         this.selectionBox.style.height = '0px';
     }
@@ -107,18 +112,17 @@ export class DragSelectionManager {
         const container = document.getElementById('my-cards');
         const rect = container.getBoundingClientRect();
         const scrollTop = container.scrollTop || 0;
+        const scrollLeft = container.scrollLeft || 0;
 
-        // 计算相对于容器的位置（不需要设备像素比校正）
-        const startX = this.startX - rect.left;
-        const startY = this.startY - rect.top + scrollTop;
-        const currentX = this.currentX - rect.left;
-        const currentY = this.currentY - rect.top + scrollTop;
+        // 计算当前位置（相对于容器的内容坐标）
+        const currentX = (this.currentX - rect.left) + scrollLeft;
+        const currentY = (this.currentY - rect.top) + scrollTop;
 
         // 计算选框的边界
-        const left = Math.min(startX, currentX);
-        const top = Math.min(startY, currentY);
-        const width = Math.abs(currentX - startX);
-        const height = Math.abs(currentY - startY);
+        const left = Math.min(this.startX, currentX);
+        const top = Math.min(this.startY, currentY);
+        const width = Math.abs(currentX - this.startX);
+        const height = Math.abs(currentY - this.startY);
 
         // 应用样式
         this.selectionBox.style.left = left + 'px';
@@ -147,9 +151,10 @@ export class DragSelectionManager {
 
             // 计算卡片相对于容器的位置
             // 注意：容器本身可能也滚动，所以需要调整计算
+            // 选框坐标(offsetLeft/Top)是包含滚动的，所以卡片坐标也需要包含滚动
             const cardTop = rect.top - containerRect.top + scrollTop/effectiveScale;
-            const cardLeft = rect.left - containerRect.left;
-            const cardRight = rect.right - containerRect.left;
+            const cardLeft = rect.left - containerRect.left + (container.scrollLeft || 0)/effectiveScale;
+            const cardRight = rect.right - containerRect.left + (container.scrollLeft || 0)/effectiveScale;
             const cardBottom = rect.bottom - containerRect.top + scrollTop/effectiveScale;
 
             // 获取选框的边界（相对于容器）

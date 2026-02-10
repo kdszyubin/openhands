@@ -338,6 +338,7 @@ body {
     transform: translateY(-20px);
     box-shadow: 0 10px 25px rgba(255, 215, 0, 0.5);
     border-color: var(--accent-color);
+    z-index: 20;
 }
 
 .card.dragging {
@@ -357,7 +358,7 @@ body {
     border: 2px dashed var(--accent-color);
     background-color: rgba(255, 215, 0, 0.2);
     pointer-events: none;
-    z-index: 10;
+    z-index: 2000;
 }
 
 .card.played {
@@ -487,6 +488,7 @@ body {
     border-radius: 20px;
     min-height: 130px;
     overflow-x: auto;
+    position: relative;
 }
 
 #my-cards .card {
