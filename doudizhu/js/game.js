@@ -8,6 +8,7 @@ import { Deck } from './deck.js';
 import { RulesAnalyzer, CARD_TYPES, CARD_TYPE_NAMES } from './rules.js';
 import { HumanPlayer, AIPlayer, PLAYER_ROLE } from './player.js';
 import { SmartAIPlayer } from './smart-ai-player.js';
+import { DragSelectionManager, CardDragManager } from './drag-selection.js';
 import { animationManager } from './animation.js';
 import { soundManager } from './sound.js';
 
@@ -41,6 +42,10 @@ export class GameController {
         this.landlordPlayCount = 0;     // 地主出牌次数
         this.farmerPlayCount = 0;       // 农民出牌次数
         this.baseScore = 10;            // 基础分
+        
+        // 拖拽选择管理器
+        this.dragSelectionManager = null;
+        this.cardDragManager = null;
         
         // UI元素引用
         this.elements = {};
@@ -128,6 +133,10 @@ export class GameController {
 
         // 尝试连接服务器
         this.connectMultiplayer();
+
+        // 初始化拖拽选择功能
+        this.dragSelectionManager = new DragSelectionManager(this);
+        this.cardDragManager = new CardDragManager(this);
 
         console.log('Game initialized');
     }
@@ -326,8 +335,13 @@ export class GameController {
             cardEl.style.marginLeft = i > 0 ? '-40px' : '0';
             cardEl.style.zIndex = i;
             
-            // 点击选牌
-            cardEl.addEventListener('click', () => {
+            // 点击选牌 - 保持原有功能
+            cardEl.addEventListener('click', (e) => {
+                // 如果是拖拽操作后的点击，可能需要忽略
+                if (this.dragSelectionManager?.isDragging) {
+                    return;
+                }
+                
                 if (this.phase !== GAME_PHASE.PLAYING || this.currentPlayerIndex !== 1) {
                     return;
                 }
