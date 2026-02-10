@@ -150,12 +150,13 @@ export class DragSelectionManager {
             const selectionRight = selectionLeft + parseInt(this.selectionBox.style.width);
             const selectionBottom = selectionTop + parseInt(this.selectionBox.style.height);
 
-            // 检查卡片是否与选框相交
+            // 检查卡片是否与选框相交（添加微小容差以处理边缘接触）
+            const tolerance = 1; // 1像素容差
             const intersects = 
-                cardLeft < selectionRight &&
-                cardRight > selectionLeft &&
-                cardTop < selectionBottom &&
-                cardBottom > selectionTop;
+                cardLeft < selectionRight + tolerance &&
+                cardRight > selectionLeft - tolerance &&
+                cardTop < selectionBottom + tolerance &&
+                cardBottom > selectionTop - tolerance;
 
             if (intersects) {
                 cardEl.classList.add('drag-over');
